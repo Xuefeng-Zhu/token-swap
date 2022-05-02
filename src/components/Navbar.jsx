@@ -25,15 +25,12 @@ const Navbar = () => {
 
   return (
     <Header>
-      <h2 className={classes.title}>dMagic</h2>
-      <Menu theme="dark" mode="horizontal" selectable={false}>
+      <h2 className={classes.title}>TokenSwap</h2>
+      {/* <Menu theme="dark" mode="horizontal" selectable={false}>
         <Menu.Item key="home">
           <Link to="/home">Home</Link>
         </Menu.Item>
-        <Menu.Item key="draw">
-          <Link to="/draw">Draw</Link>
-        </Menu.Item>
-      </Menu>
+      </Menu> */}
 
       <div className={classes.extra}>
         {address ? (

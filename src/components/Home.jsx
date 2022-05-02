@@ -1,34 +1,69 @@
-import React, { useEffect } from 'react';
-import { useQuery } from 'react-query';
-import { Skeleton, Card, List } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Result, Card, Statistic, Row, Col, Button } from 'antd';
+import { formatEther } from 'ethers/lib/utils';
 
 import { useWeb3Context } from '../contexts/Web3ContextProvider';
 import { useStateContext } from '../contexts/StateContextProvider';
 
 const Home = () => {
   const { address } = useWeb3Context();
-  const { getOwnedCards } = useStateContext();
-  const { isLoading, data } = useQuery(['HomeFeeds', address], () =>
-    getOwnedCards()
-  );
+  const { tokenSwap } = useStateContext();
+  const [allocation, setAllocation] = useState(0);
+  const [claimable, setClaimable] = useState(0);
 
-  if (isLoading) {
-    return <Skeleton />;
+  useEffect(async () => {
+    if (!tokenSwap || !address) {
+      return;
+    }
+
+    setAllocation(await tokenSwap.allocations(address));
+    setClaimable(await tokenSwap.claimable(address));
+  }, [tokenSwap, address]);
+
+  const claim = async () => {
+    if (!tokenSwap) {
+      return;
+    }
+    await tokenSwap.claim();
+  };
+
+  if (!address) {
+    return (
+      <Result
+        status="warning"
+        title="Please connect to your wallet to claim."
+      />
+    );
   }
 
+  console.log(claimable);
   return (
-    <List
+    <Card
       style={{ width: '100%' }}
-      grid={{ gutter: 16, column: 4 }}
-      dataSource={data}
-      renderItem={(nft) => (
-        <List.Item>
-          <Card style={{ width: '100%' }} cover={<img src={nft.file_url} />}>
-            <Card.Meta title={nft.metadata.name} />
-          </Card>
-        </List.Item>
-      )}
-    />
+      title="Claim token"
+      actions={[
+        <Button type="primary" onClick={claim}>
+          Claim
+        </Button>,
+      ]}
+    >
+      <Row gutter={16}>
+        <Col span={12}>
+          <Statistic
+            title="Allocations"
+            value={formatEther(allocation)}
+            precision={2}
+          />
+        </Col>
+        <Col span={12}>
+          <Statistic
+            title="Claimable"
+            value={formatEther(claimable)}
+            precision={2}
+          />
+        </Col>
+      </Row>
+    </Card>
   );
 };
 

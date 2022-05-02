@@ -6,22 +6,11 @@ import React, {
   useState,
 } from 'react';
 import Web3Modal from '@0xsequence/web3modal';
-import { sequence } from '0xsequence';
-import { Framework } from '@superfluid-finance/sdk-core';
 
 import { Web3Provider } from '@ethersproject/providers';
 
 const web3Modal = new Web3Modal({
   cacheProvider: true,
-  providerOptions: {
-    sequence: {
-      package: sequence,
-      options: {
-        appName: 'dMagic',
-        defaultNetwork: 'rinkeby',
-      },
-    },
-  },
   theme: 'dark',
 });
 
@@ -41,7 +30,6 @@ export const Web3ContextProvider = ({ children }) => {
   const [network, setNetwork] = useState({});
   const [address, setAddress] = useState('');
   const [web3Connection, setWeb3Connection] = useState();
-  const [sf, setSf] = useState();
 
   useEffect(() => {
     if (!web3Connection) {
@@ -64,14 +52,9 @@ export const Web3ContextProvider = ({ children }) => {
     const network = await newProvider.getNetwork();
     setNetwork(network);
 
-    const sf = await Framework.create({
-      chainId: network.chainId,
-      provider: newProvider,
-    });
-    const sfsigner = sf.createSigner({ web3Provider: newProvider });
-    setSf(sf);
-    setSigner(sfsigner);
-    setAddress(await sfsigner.getAddress());
+    const newSigner = await newProvider.getSigner();
+    setSigner(newSigner);
+    setAddress(await newSigner.getAddress());
   }, []);
 
   const logoutOfWeb3Modal = useCallback(async () => {
@@ -93,7 +76,6 @@ export const Web3ContextProvider = ({ children }) => {
       value={{
         provider,
         signer,
-        sf,
         address,
         network,
         web3Modal,

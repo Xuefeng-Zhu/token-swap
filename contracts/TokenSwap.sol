@@ -1,11 +1,11 @@
-pragma solidity 0.8.13;
+// SPDX-License-Identifier: MIT
 
-interface IERC20 {
-    function transfer(address, uint) external;
-}
+pragma solidity 0.8.4;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TokenSwap {
-    IERC20 public immutable token;
+    ERC20 public immutable token;
     mapping(address => uint) public allocations;
     mapping(address => uint) public claimed;
     uint public start;
@@ -19,7 +19,7 @@ contract TokenSwap {
             allocations[_users[i]] = _allocations[i];
         }
         creator = msg.sender;
-        token = IERC20(_token);
+        token = ERC20(_token);
     }
 
     function startSwap() external {
