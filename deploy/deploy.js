@@ -25,6 +25,26 @@ const func = async (hre) => {
   const balances = await csv().fromFile('./balances.csv');
   for (let i = 0; i < balances.length; i += 100) {
     console.log('setAllocations', i);
+    let setAllocations = false;
+
+    for (let j = i; j < i + 100; j++) {
+      const balance = balances[j];
+      const allocation = await tokenSwap.allocations(balance.HolderAddress);
+      if (allocation.toString() !== balance.Balance) {
+        console.log(
+          balance.HolderAddress,
+          allocation.toString(),
+          balance.Balance
+        );
+        setAllocations = true;
+        break;
+      }
+    }
+    if (!setAllocations) {
+      console.log('skip', i);
+      continue;
+    }
+
     const curBalances = balances.slice(i, i + 100);
     await tokenSwap.setAllocations(
       curBalances.map((item) => item.HolderAddress),
